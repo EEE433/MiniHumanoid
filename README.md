@@ -10,7 +10,7 @@
   <img alt="Static Badge" src="https://img.shields.io/badge/mujoco-n?style=for-the-badge&label=platform&color=%23FFDA03">
   <br><br>
 
-  Repository for robot code and simulation stack. Participant in Hackclub Stardance.
+  Repository for robot code and simulation stack. Participant in Hackclub Stardance. Human designed in Fusion 360 and programmed with major help/generation from claude.ai.
 
 
 
