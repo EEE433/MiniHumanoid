@@ -27,10 +27,14 @@ class WalkEnv(StandEnv):
                  init_noise=0.05, push_force=0.0, timestep=0.004,
                  vx_range=(-0.08, 0.16), vy_range=(-0.06, 0.06), wz_range=(-0.6, 0.6),
                  cmd_scale=1.0, crouch_deg=15.0, arms_down_deg=70.0,
-                 gait_hz=2.0, step_height=0.015, mass_scale=1.0):
+                 gait_hz=2.0, step_height=0.015, mass_scale=1.0,
+                 sim_backend="mujoco", device="cuda", nworld=1, nconmax=256, njmax=512):
         super().__init__(xml_path=xml_path, render_mode=render_mode, control_dt=control_dt,
                          episode_seconds=episode_seconds, action_scale_deg=action_scale_deg,
-                         init_noise=init_noise, push_force=push_force, timestep=timestep)
+                         init_noise=init_noise, push_force=push_force, timestep=timestep,
+                         sim_backend=sim_backend, device=device, nworld=nworld,
+                         nconmax=nconmax, njmax=njmax,
+                         initialize_warp=(mass_scale == 1.0))
         if mass_scale != 1.0:                       # quick what-if for lighter builds (printed parts instead of steel)
             self.model.body_mass[:] *= mass_scale; self.model.body_inertia[:] *= mass_scale
             mujoco.mj_setConst(self.model, self.data)
@@ -50,6 +54,8 @@ class WalkEnv(StandEnv):
         self.tau_max = float(m.actuator_forcerange[0, 1])
         self._build_roles()
         self._build_home(crouch_deg, arms_down_deg)
+        if self.sim_backend == "warp" and mass_scale != 1.0:
+            self._init_warp()
         self.observation_space = spaces.Box(-np.inf, np.inf, (11 + 3 * self.nu,), np.float64)
 
     # ---------------------------------------------------------------- setup
@@ -146,7 +152,11 @@ class WalkEnv(StandEnv):
     def reset(self, seed=None, options=None):
         gym.Env.reset(self, seed=seed)
         m, d = self.model, self.data
-        mujoco.mj_resetDataKeyframe(m, d, 0)
+        if self.sim_backend == "warp":
+            import mujoco_warp as mjw
+            mjw.reset_data_keyframe(self._warp_model, self._warp_data, 0)
+        else:
+            mujoco.mj_resetDataKeyframe(m, d, 0)
         n = self.init_noise
         d.qpos[2] = self.base_z0
         d.qpos[self.qadr] = np.clip(self.home_q + self.np_random.uniform(-n, n, self.nu), self.ctrl_lo, self.ctrl_hi)
@@ -156,7 +166,11 @@ class WalkEnv(StandEnv):
         d.qvel[:] = self.np_random.uniform(-0.01, 0.01, m.nv)
         d.ctrl[:] = np.clip(self.home_q, self.ctrl_lo, self.ctrl_hi)
         d.xfrc_applied[:] = 0
-        mujoco.mj_forward(m, d)
+        if self.sim_backend == "warp":
+            self._upload_warp_state()
+            self._sync_warp_state()
+        else:
+            mujoco.mj_forward(m, d)
         self._prev_action[:] = 0; self._steps = 0; self._push_left = 0
         self._phase = float(self.np_random.uniform(0, 1))
         if not self.manual_command: self._sample_command()
@@ -194,8 +208,7 @@ class WalkEnv(StandEnv):
             d.xfrc_applied[self.base_id, :3] = self._push if self._push_left > 0 else 0
             self._push_left = max(0, self._push_left - 1)
 
-        for _ in range(self.frame_skip):
-            mujoco.mj_step(m, d)
+        self._step_simulation()
         self._steps += 1
 
         if not self.manual_command:

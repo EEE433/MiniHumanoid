@@ -16,12 +16,15 @@ p.add_argument("--episodes", type=int, default=10)
 p.add_argument("--push", type=float, default=0.0)
 p.add_argument("--no-render", action="store_true")
 p.add_argument("--device", default="cuda", help="PPO inference device (cuda when available; falls back to cpu)")
+p.add_argument("--sim-backend", choices=("warp", "mujoco"), default="warp",
+               help="warp simulates physics on NVIDIA GPU; mujoco uses CPU (viewer syncs state to host)")
 a = p.parse_args()
 
-venv = DummyVecEnv([lambda: StandEnv(push_force=a.push)])
+device = resolve_device(a.device)
+venv = DummyVecEnv([lambda: StandEnv(push_force=a.push, sim_backend=a.sim_backend, device=device)])
 venv = VecNormalize.load(os.path.join(a.run, a.norm), venv)
 venv.training = False; venv.norm_reward = False
-model = PPO.load(os.path.join(a.run, a.model), device=resolve_device(a.device))
+model = PPO.load(os.path.join(a.run, a.model), device=device)
 print("policy inference on:", model.device)
 env = venv.venv.envs[0].unwrapped
 

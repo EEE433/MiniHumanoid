@@ -20,11 +20,31 @@ class StandEnv(gym.Env):
 
     def __init__(self, xml_path=os.path.join(HERE, "test.xml"), render_mode=None,
                  control_dt=0.02, episode_seconds=10.0, action_scale_deg=30.0,
-                 init_noise=0.05, push_force=0.0, timestep=0.004):
+                 init_noise=0.05, push_force=0.0, timestep=0.004, sim_backend="mujoco",
+                 device="cuda", nworld=1, nconmax=256, njmax=512, initialize_warp=True):
         self.model = mujoco.MjModel.from_xml_path(xml_path)
         self.data = mujoco.MjData(self.model)
         self.render_mode = render_mode
+        self.sim_backend = sim_backend.lower()
+        self.device = device
+        self.nworld, self.nconmax, self.njmax = nworld, nconmax, njmax
+        if self.nworld != 1:
+            raise ValueError("StandEnv currently requires nworld=1; vectorize with separate Gymnasium envs")
+        self._warp_model = self._warp_data = None
+        if self.sim_backend not in ("mujoco", "warp"):
+            raise ValueError("sim_backend must be 'mujoco' or 'warp'")
         if timestep: self.model.opt.timestep = timestep   # 0.004 is ~4x faster than the XML default of 0.001
+        if self.sim_backend == "warp":
+            self.model.opt.integrator = mujoco.mjtIntegrator.mjINT_IMPLICIT
+            try:
+                import warp as wp
+                import mujoco_warp as mjw
+            except ImportError as exc:
+                raise RuntimeError("MuJoCo Warp backend requested; install RL/requirements.txt") from exc
+            wp.init()
+            wp.set_device(device)
+        elif device != "cpu":
+            self.device = "cpu"
         self.frame_skip = max(1, int(round(control_dt / self.model.opt.timestep)))
         self.control_dt = self.frame_skip * self.model.opt.timestep
         self.max_steps = int(round(episode_seconds / self.control_dt))
@@ -42,6 +62,7 @@ class StandEnv(gym.Env):
         mujoco.mj_forward(m, self.data)
         self.home_q = self.data.qpos[self.qadr].copy()
         self.h0 = float(self.data.xpos[self.base_id][2])      # standing height of base origin
+        if self.sim_backend == "warp" and initialize_warp: self._init_warp()
 
         obs_dim = 6 + 3 * self.nu
         self.observation_space = spaces.Box(-np.inf, np.inf, (obs_dim,), np.float64)
@@ -63,6 +84,9 @@ class StandEnv(gym.Env):
         super().reset(seed=seed)
         m, d = self.model, self.data
         mujoco.mj_resetDataKeyframe(m, d, 0)
+        if self.sim_backend == "warp":
+            import mujoco_warp as mjw
+            mjw.reset_data_keyframe(self._warp_model, self._warp_data, 0)
         n = self.init_noise                                     # radians (0.05 ~ 3 deg)
         d.qpos[self.qadr] += self.np_random.uniform(-n, n, self.nu)
         ang = self.np_random.uniform(0, 0.03)                  # small random tilt (rad)
@@ -71,9 +95,53 @@ class StandEnv(gym.Env):
         d.qvel[:] = self.np_random.uniform(-0.01, 0.01, m.nv)
         d.ctrl[:] = np.clip(self.home_q, self.ctrl_lo, self.ctrl_hi)
         d.xfrc_applied[:] = 0
-        mujoco.mj_forward(m, d)
+        if self.sim_backend == "warp":
+            self._upload_warp_state()
+            self._sync_warp_state()
+        else:
+            mujoco.mj_forward(m, d)
         self._prev_action[:] = 0; self._steps = 0; self._push_left = 0
         return self._obs(), {}
+
+    def _init_warp(self):
+        """Compile the MJCF model and allocate one simulation world on the requested GPU."""
+        import mujoco_warp as mjw
+        self._warp_model = mjw.put_model(self.model)
+        self._warp_data = mjw.put_data(self.model, self.data, nworld=self.nworld,
+                                       nconmax=self.nconmax, njmax=self.njmax)
+
+    def _upload_warp_state(self):
+        """Copy host-side control inputs and reset state into the one-world MJWarp buffers."""
+        self._warp_data.qpos.assign(np.asarray(self.data.qpos[None, :], dtype=np.float32))
+        self._warp_data.qvel.assign(np.asarray(self.data.qvel[None, :], dtype=np.float32))
+        self._warp_data.ctrl.assign(np.asarray(self.data.ctrl[None, :], dtype=np.float32))
+        self._warp_data.xfrc_applied.assign(np.asarray(self.data.xfrc_applied[None, :, :], dtype=np.float32))
+        import mujoco_warp as mjw
+        mjw.forward(self._warp_model, self._warp_data)
+
+    def _sync_warp_state(self):
+        import mujoco_warp as mjw
+        mjw.get_data_into(self.data, self.model, self._warp_data)
+        count = min(int(self._warp_data.nacon.numpy()[0]), self._warp_data.naconmax)
+        if count:
+            geom = self._warp_data.contact.geom.numpy()[:count]
+            self.data.contact.geom[:count] = geom
+            self.data.contact.geom1[:count] = geom[:, 0]
+            self.data.contact.geom2[:count] = geom[:, 1]
+
+    def _step_simulation(self):
+        if self.sim_backend == "warp":
+            import mujoco_warp as mjw
+            import warp as wp
+            self._warp_data.ctrl.assign(np.asarray(self.data.ctrl[None, :], dtype=np.float32))
+            self._warp_data.xfrc_applied.assign(np.asarray(self.data.xfrc_applied[None, :, :], dtype=np.float32))
+            for _ in range(self.frame_skip):
+                mjw.step(self._warp_model, self._warp_data)
+            wp.synchronize_device(self.device)
+            self._sync_warp_state()
+        else:
+            for _ in range(self.frame_skip):
+                mujoco.mj_step(self.model, self.data)
 
     def step(self, action):
         action = np.clip(np.asarray(action, dtype=np.float64), -1, 1)
@@ -89,8 +157,7 @@ class StandEnv(gym.Env):
             d.xfrc_applied[self.base_id, :3] = self._push if self._push_left > 0 else 0
             self._push_left = max(0, self._push_left - 1)
 
-        for _ in range(self.frame_skip):
-            mujoco.mj_step(m, d)
+        self._step_simulation()
         self._steps += 1
 
         R = d.xmat[self.base_id].reshape(3, 3)

@@ -9,9 +9,10 @@ from stand_env import StandEnv
 from controller import resolve_device
 
 
-def make_env(rank, push):
+def make_env(rank, push, sim_backend, device, nconmax, njmax):
     def _init():
-        env = StandEnv(push_force=push)
+        env = StandEnv(push_force=push, sim_backend=sim_backend, device=device,
+                       nconmax=nconmax, njmax=njmax)
         env.reset(seed=rank)
         return Monitor(env)
     return _init
@@ -25,13 +26,19 @@ if __name__ == "__main__":          # required on Windows (SubprocVecEnv uses sp
     p.add_argument("--name", default="stand")
     p.add_argument("--resume", default=None, help="path to a model .zip to continue training")
     p.add_argument("--device", default="cuda", help="PPO device (cuda when available; falls back to cpu)")
+    p.add_argument("--sim-backend", choices=("warp", "mujoco"), default="warp",
+                   help="warp runs MuJoCo physics on the NVIDIA GPU; mujoco uses CPU")
+    p.add_argument("--nconmax", type=int, default=256, help="MJWarp maximum contacts per world")
+    p.add_argument("--njmax", type=int, default=512, help="MJWarp maximum constraints per world")
     a = p.parse_args()
     a.device = resolve_device(a.device)
     import torch; torch.set_num_threads(1)   # small MLP: 1 thread is faster than fighting the env workers
 
     out = os.path.join("runs", a.name); os.makedirs(out, exist_ok=True)
     Vec = SubprocVecEnv if a.envs > 1 else DummyVecEnv
-    venv = Vec([make_env(i, a.push) for i in range(a.envs)])
+    venv = Vec([make_env(i, a.push, a.sim_backend, a.device, a.nconmax, a.njmax)
+                for i in range(a.envs)])
+    print(f"simulation backend: {a.sim_backend}" + (f" ({a.device})" if a.sim_backend == "warp" else " (CPU)"))
     venv = VecNormalize(venv, norm_obs=True, norm_reward=True, clip_obs=10.0)
 
     if a.resume:

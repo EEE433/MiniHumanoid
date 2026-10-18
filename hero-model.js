@@ -11,7 +11,7 @@ const panel = document.querySelector('#robot-panel');
 if (host && canvas) {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 10);
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -66,7 +66,8 @@ if (host && canvas) {
     }
   }
 
-  new GLTFLoader().load('assets/mini-humanoid.glb', (gltf) => {
+  const modelUrl = new URL('./assets/mini-humanoid.glb', import.meta.url);
+  new GLTFLoader().load(modelUrl.href, (gltf) => {
     robot = gltf.scene;
     scene.add(robot);
     const bounds = new THREE.Box3().setFromObject(robot);
@@ -85,8 +86,9 @@ if (host && canvas) {
     status.textContent = 'MODEL READY';
     positionLabels();
   }, undefined, (loadError) => {
-    console.error('Unable to load homepage robot model:', loadError);
+    console.error(`Unable to load homepage robot model from ${modelUrl.href}:`, loadError);
     status.textContent = 'MODEL UNAVAILABLE';
+    error.textContent = '3D model unavailable. Check that the model asset is served from the site folder over HTTP.';
     error.hidden = false;
   });
 

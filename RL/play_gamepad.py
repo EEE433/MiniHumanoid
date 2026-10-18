@@ -18,6 +18,9 @@ def main():
     p.add_argument("--list-axes", action="store_true")
     p.add_argument("--selftest", action="store_true")
     p.add_argument("--device", default="cuda", help="PPO inference device (cuda when available; falls back to cpu)")
+    p.add_argument("--sim-backend", choices=("warp", "mujoco"), default="warp",
+                   help="warp simulates physics on NVIDIA GPU; mujoco uses CPU (viewer syncs state to host)")
+    p.add_argument("--nconmax", type=int, default=256); p.add_argument("--njmax", type=int, default=512)
     p.add_argument("--push", type=float, default=0.0)
     p.add_argument("--mass-scale", type=float, default=1.0, help="must match what you trained with")
     p.add_argument("--axis-lx", type=int, default=0); p.add_argument("--axis-ly", type=int, default=1)
@@ -28,11 +31,16 @@ def main():
     from stable_baselines3 import PPO
     from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
     from walk_env import WalkEnv
-    env = WalkEnv(push_force=a.push, mass_scale=a.mass_scale)
-    vn = VecNormalize.load(os.path.join(a.run, "vecnormalize.pkl"), DummyVecEnv([lambda: WalkEnv(mass_scale=a.mass_scale)]))
+    device = resolve_device(a.device)
+    env = WalkEnv(push_force=a.push, mass_scale=a.mass_scale,
+                  sim_backend=a.sim_backend, device=device, nconmax=a.nconmax, njmax=a.njmax)
+    vn = VecNormalize.load(os.path.join(a.run, "vecnormalize.pkl"), DummyVecEnv([
+        lambda: WalkEnv(mass_scale=a.mass_scale, sim_backend=a.sim_backend, device=device,
+                       nconmax=a.nconmax, njmax=a.njmax)]))
     vn.training = False; vn.norm_reward = False
-    model = PPO.load(os.path.join(a.run, a.model), device=resolve_device(a.device))
-    print("policy inference on:", model.device)
+    model = PPO.load(os.path.join(a.run, a.model), device=device)
+    print("policy inference on:", model.device, "| simulation:",
+          f"MuJoCo Warp ({device})" if a.sim_backend == "warp" else "MuJoCo CPU")
     policy = lambda obs: model.predict(vn.normalize_obs(obs), deterministic=True)[0]
 
     if a.selftest:

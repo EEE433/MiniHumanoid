@@ -12,7 +12,7 @@ scene.background = new THREE.Color('#e5e5e5');
 const camera = new THREE.PerspectiveCamera(34, 1, 0.01, 20);
 camera.position.set(0.55, 0.38, 0.55);
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -53,7 +53,8 @@ new ResizeObserver(resize).observe(canvas);
 resize();
 
 const loader = new GLTFLoader();
-loader.load('assets/mini-humanoid.glb', (gltf) => {
+const modelUrl = new URL('./assets/mini-humanoid.glb', import.meta.url);
+loader.load(modelUrl.href, (gltf) => {
   const robot = gltf.scene;
   scene.add(robot);
   const bounds = new THREE.Box3().setFromObject(robot);
@@ -73,8 +74,9 @@ loader.load('assets/mini-humanoid.glb', (gltf) => {
   status.textContent = 'MODEL READY';
   document.querySelector('.viewer-meta i').classList.add('ready');
 }, undefined, (loadError) => {
-  console.error('Unable to load MiniHumanoid GLB:', loadError);
+  console.error(`Unable to load MiniHumanoid GLB from ${modelUrl.href}:`, loadError);
   status.textContent = 'MODEL UNAVAILABLE';
+  error.textContent = '3D model unavailable. Check that the model asset is served from the site folder over HTTP.';
   error.hidden = false;
 });
 
