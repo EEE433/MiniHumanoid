@@ -1,0 +1,232 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="STLv2">
+  <compiler angle="radian" meshdir="meshes_lite" autolimits="true" />
+  <option timestep="0.001" integrator="implicitfast" />
+  <default>
+    <position kp="2.023" kv="0.03" forcerange="-0.1765 0.1765" />
+    <default class="hinge">
+      <joint damping="0.01686" armature="0.0003" frictionloss="0.005" />
+    </default>
+    <default class="visual">
+      <geom contype="0" conaffinity="0" group="1" />
+    </default>
+    <default class="collision">
+      <geom group="3" contype="1" conaffinity="1" condim="3" friction="1 0.005 0.0001" rgba="0.9 0.3 0.3 0.3" />
+    </default>
+  </default>
+  <asset>
+    <mesh name="base_link_1_mesh" file="base_link_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="LeftFoot_1_mesh" file="LeftFoot_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="LeftHipJoint_1_mesh" file="LeftHipJoint_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="LeftLowerArm_1_mesh" file="LeftLowerArm_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="LeftLowerThigh_1_mesh" file="LeftLowerThigh_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="LeftLowerUpperArm_1_mesh" file="LeftLowerUpperArm_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="LeftShin_1_mesh" file="LeftShin_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="LeftShoulderJoint_1_mesh" file="LeftShoulderJoint_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="LeftUpperThigh_1_mesh" file="LeftUpperThigh_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="LeftUpperUpperArm_1_mesh" file="LeftUpperUpperArm_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="RightFoot_1_mesh" file="RightFoot_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="RightHipJoint_1_mesh" file="RightHipJoint_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="RightLowerArm_1_mesh" file="RightLowerArm_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="RightLowerThigh_1_mesh" file="RightLowerThigh_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="RightLowerUpperArm_1_mesh" file="RightLowerUpperArm_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="RightShin_1_mesh" file="RightShin_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="RightShoulderJoint_1_mesh" file="RightShoulderJoint_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="RightUpperThigh_1_mesh" file="RightUpperThigh_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="RightUpperUpperArm_1_mesh" file="RightUpperUpperArm_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+    <mesh name="Torso_1_mesh" file="Torso_1.stl" scale="9.677608440797186e-05 9.677608440797186e-05 9.677608440797186e-05" />
+  </asset>
+  <worldbody>
+    <body name="spawn" pos="0 0 0.21322977725674094">
+      <freejoint name="root_joint" />
+      <body name="base_link_1" pos="0.0 0.0 0.0" quat="1 0 0 0">
+        <inertial pos="-1.275179632956108e-09 0.0026812126303101115 -0.0034072880151570454" mass="0.2266046969791932" fullinertia="5.175004272814142e-05 7.557435898971325e-05 4.757451768959005e-05 1.3950422899863127e-12 1.003395385895664e-12 7.3049708403037e-06" />
+        <geom name="base_link_1_geom" type="mesh" mesh="base_link_1_mesh" pos="0.0 0.0 0.0" quat="1 0 0 0" class="visual" />
+        <body name="RightHipJoint_1" pos="-0.03116189991767169 0.005032356628241788 -0.016355159041768874" quat="0.707106781187 0 -0.707106781187 0">
+          <joint name="Revolute_5" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-1.5708 1.5708" class="hinge" />
+          <inertial pos="0.00016478494506236342 0.016047177824664773 0.008351910517063616" mass="0.07688407143029469" fullinertia="6.613199755663977e-06 6.028740448451387e-06 9.351801510126997e-06 -2.596621238066497e-07 2.23052016147224e-08 -1.0332443010479605e-06" />
+          <geom name="RightHipJoint_1_geom" type="mesh" mesh="RightHipJoint_1_mesh" pos="0.01635525488289953 -0.005032045134187919 -0.03116189991767169" quat="0.707106781154 -6.73362175347e-06 0.707106781154 6.73362175351e-06" class="visual" />
+          <body name="RightUpperThigh_1" pos="-0.004838804449341776 -9.25813426481687e-08 0.010161490087248065" quat="0.500004761367 0.499995238588 0.500004761367 -0.499995238588">
+            <joint name="Revolute_4" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-0.7854 0.7854" class="hinge" />
+            <inertial pos="-0.001470787472294836 -0.02138932484617538 0.014919828002326671" mass="0.07890117902622103" fullinertia="1.0971145502659584e-05 7.760507862483105e-06 5.908620942855137e-06 -1.3177661076852598e-07 2.871129678288503e-08 8.723606045104289e-07" />
+            <geom name="RightUpperThigh_1_geom" type="mesh" mesh="RightUpperThigh_1_mesh" pos="0.041348426705325146 0.021145076471734817 0.005032356204633511" quat="0.707106657556 -0.707106657556 0.000418139323473 -0.000418139323473" class="visual" />
+            <body name="RightLowerThigh_1" pos="-0.0005514376532062169 -0.040540668299743496 0.012108736414715182" quat="0.707106657556 0.707106657556 -0.000418139323473 -0.000418139323473">
+              <joint name="Revolute_3" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-0.6109 0.6109" class="hinge" />
+              <inertial pos="0.0006663790904873019 -0.003695032844220856 0.021392091088642966" mass="0.10314183139699287" fullinertia="1.449610452600725e-05 1.3999964008633178e-05 7.57664754517057e-06 -2.54300674415296e-07 -4.553345370330118e-07 -6.607611361678452e-07" />
+              <geom name="RightLowerThigh_1_geom" type="mesh" mesh="RightLowerThigh_1_mesh" pos="0.04182560164515639 -0.007083936742154009 -0.06173525561145879" quat="-2.77865572122e-17 0.99999999592 -9.0332430395e-05 -3.26564224675e-17" class="visual" />
+              <body name="RightShin_1" pos="0.01935521775557919 -3.4987635563713187e-06 0.0290328207924966" quat="0.707106778302 6.38746740934e-05 0.707106778302 -6.38746740933e-05">
+                <joint name="Revolute_2" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-2.4435 0.0873" class="hinge" />
+                <inertial pos="-0.03871043740264695 1.6528057497300292e-09 -0.0005545493612872304" mass="0.028953785259613746" fullinertia="3.70929020951341e-07 1.6568859508307393e-05 1.6864350236695758e-05 -9.893360959002048e-16 5.620780413319321e-15 3.371550921602131e-25" />
+                <geom name="RightShin_1_geom" type="mesh" mesh="RightShin_1_mesh" pos="0.09076807640443928 -0.007076378247772362 0.022471662709176318" quat="-2.5372098026e-11 0.707106781187 2.53721415062e-11 0.707106781187" class="visual" />
+                <body name="RightFoot_1" pos="-0.07742087757918681 6.033946275214625e-09 -1.5039926703165534e-18" quat="1 -3.07553750584e-17 3.08699234432e-17 3.58815959153e-11">
+                  <joint name="Revolute_1" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-0.7854 0.7854" class="hinge" />
+                  <inertial pos="-0.010196461726122099 0.00047871359222807444 -0.01793184561840891" mass="0.08398247320009473" fullinertia="7.507298298939886e-06 1.6044164612600895e-05 1.715411002353308e-05 2.4631913889255784e-06 -1.271224348343206e-07 -1.2808875363556402e-08" />
+                  <geom name="RightFoot_1_geom" type="mesh" mesh="RightFoot_1_mesh" pos="0.16818895398352932 -0.007076384293780815 0.022471662709176318" quat="-3.15790220515e-20 0.707106781187 6.34352890827e-20 0.707106781187" class="visual" />
+                  <geom name="RightFoot_1_col" class="collision" type="box" pos="-0.0123891 0.0104862 -0.015577" quat="5.71749e-05 0.707525 7.05665e-05 0.706689" size="0.0155925 0.022117 0.0226537" />
+                </body>
+                <geom name="RightShin_1_col" class="collision" type="capsule" fromto="0.00237786 1.45622e-09 -0.000442248 -0.0797987 1.44998e-09 -0.000442248" size="0.00342678" />
+              </body>
+              <geom name="RightLowerThigh_1_col" class="collision" type="capsule" fromto="0.014397 -0.000238393 0.0285484 0.000196152 -0.0037971 0.00350967" size="0.00663919" />
+            </body>
+            <geom name="RightUpperThigh_1_col" class="collision" type="capsule" fromto="6.97873e-05 -0.00150391 0.00102441 -0.0004975 -0.0349201 0.0124007" size="0.00595256" />
+          </body>
+          <geom name="RightHipJoint_1_col" class="collision" type="capsule" fromto="-0.00291757 0.00584066 0.00814644 0.00570795 0.0228868 0.0063933" size="0.0101363" />
+        </body>
+        <body name="LeftHipJoint_1" pos="0.03116189991767169 0.005032356628241788 -0.016355159041768874" quat="0 0.707106781187 0 0.707106781187">
+          <joint name="Revolute_10" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-1.5708 1.5708" class="hinge" />
+          <inertial pos="0.00016509074267654513 -0.01604717519787151 0.008351910443949284" mass="0.07688406883817538" fullinertia="6.613189239622349e-06 6.028750246112887e-06 9.351800829080092e-06 2.596730557427322e-07 2.2285494361750973e-08 1.0332448058104207e-06" />
+          <geom name="LeftHipJoint_1_geom" type="mesh" mesh="LeftHipJoint_1_mesh" pos="0.016355159041768874 0.005032356628241788 -0.03116189991767169" quat="0 0.707106781187 0 0.707106781187" class="visual" />
+          <body name="LeftUpperThigh_1" pos="-0.004838803759386359 4.2360983483230887e-10 0.010161488740221747" quat="-0.5 0.5 0.5 0.5">
+            <joint name="Revolute_9" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-0.7854 0.7854" class="hinge" />
+            <inertial pos="0.001445491159629912 -0.02139104943848423 0.01491982809552204" mass="0.07890117642558186" fullinertia="1.0971451800428472e-05 7.760200617555637e-06 5.908620055872821e-06 1.2797912978149407e-07 -2.7679542419876495e-08 8.723940907710416e-07" />
+            <geom name="LeftUpperThigh_1_geom" type="mesh" mesh="LeftUpperThigh_1_mesh" pos="-0.041323388657990213 0.021193962801126204 0.005032356204633511" quat="0.707106781187 -0.707106781187 0 0" class="visual" />
+            <body name="LeftLowerThigh_1" pos="0.0005034899027519683 -0.040541292810332585 0.012108736110644724" quat="0.707106781187 0.707106781187 0 0">
+              <joint name="Revolute_8" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-0.6109 0.6109" class="hinge" />
+              <inertial pos="-0.0006670439733248898 -0.0036949121956345306 0.02139209089596178" mass="0.10314182881475296" fullinertia="1.4496196181271015e-05 1.3999871146194033e-05 7.576646661269645e-06 2.542108322354008e-07 4.5521479689987917e-07 -6.608433034652201e-07" />
+              <geom name="LeftLowerThigh_1_geom" type="mesh" mesh="LeftLowerThigh_1_mesh" pos="-0.04182687856068605 -0.007076379905991858 -0.06173525561145879" quat="0 1 0 0" class="visual" />
+              <body name="LeftShin_1" pos="-0.01935521585150973 -9.725538187949999e-09 0.029032819853187924" quat="0 -0.707106781187 0 0.707106781187">
+                <joint name="Revolute_7" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-0.0873 2.4435" class="hinge" />
+                <inertial pos="-0.03871043834195562 -9.729409468911605e-09 -0.0005545493612872304" mass="0.028953785259613746" fullinertia="3.70929020951341e-07 1.6568859508307393e-05 1.6864350236695758e-05 0.0 -1.009930774942058e-21 0.0" />
+                <geom name="LeftShin_1_geom" type="mesh" mesh="LeftShin_1_mesh" pos="0.09076807546464671 0.007076370180459901 0.022471662709176318" quat="0.707106781187 0 0.707106781187 0" class="visual" />
+                <body name="LeftFoot_1" pos="-0.07742088224824578 -8.510003330524666e-09 0.0" quat="1 0 0 0">
+                  <joint name="Revolute_6" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-0.7854 0.7854" class="hinge" />
+                  <inertial pos="-0.010196457682526965 -0.000478719184575405 -0.017931845086914654" mass="0.08398247580454063" fullinertia="7.507299074363952e-06 1.6044165656199384e-05 1.715411030620617e-05 -2.463191397923581e-06 -1.271228896069362e-07 1.2808854121480147e-08" />
+                  <geom name="LeftFoot_1_geom" type="mesh" mesh="LeftFoot_1_mesh" pos="0.1681889577132796 0.0070763786904648835 0.022471662709176318" quat="0.707106781187 0 0.707106781187 0" class="visual" />
+                  <geom name="LeftFoot_1_col" class="collision" type="box" pos="-0.0123913 -0.0104854 -0.0155809" quat="0.707107 0 0.707107 0" size="0.015581 0.0221164 0.0226496" />
+                </body>
+                <geom name="LeftShin_1_col" class="collision" type="capsule" fromto="0.00237786 -9.52988e-09 -0.000442248 -0.0797987 -9.52953e-09 -0.000442248" size="0.00342678" />
+              </body>
+              <geom name="LeftLowerThigh_1_col" class="collision" type="capsule" fromto="-0.000199373 -0.00379672 0.0035099 -0.0143876 -0.000235117 0.0285591" size="0.00664056" />
+            </body>
+            <geom name="LeftUpperThigh_1_col" class="collision" type="capsule" fromto="-7.15725e-05 -0.00150357 0.00102001 0.000456259 -0.0349192 0.0124084" size="0.00595147" />
+          </body>
+          <geom name="LeftHipJoint_1_col" class="collision" type="capsule" fromto="-0.00291606 -0.00584631 0.00814118 0.00569363 -0.0228778 0.00641309" size="0.0101508" />
+        </body>
+        <body name="Torso_1" pos="3.487877134718576e-18 -0.0053226846424384525 0.02341981316503394" quat="0.707106781187 0 0 -0.707106781187">
+          <joint name="Revolute_19" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-1.5708 1.5708" class="hinge" />
+          <inertial pos="-0.006592564242907614 -5.8800197671053225e-05 0.0548314023267752" mass="0.1359990954569145" fullinertia="3.9378562883235575e-05 2.334590501174903e-05 3.7772738508604066e-05 -1.828214102681043e-07 4.404223011139587e-06 -1.0807337045294156e-07" />
+          <geom name="Torso_1_geom" type="mesh" mesh="Torso_1_mesh" pos="-0.0053226846424384525 -1.8932534546886286e-18 -0.02341981316503394" quat="0.707106781187 0 0 0.707106781187" class="visual" />
+          <body name="RightShoulderJoint_1" pos="-0.010355041270689917 -0.03116189991767169 0.06183992124798453" quat="0.5 0.5 -0.5 0.5">
+            <joint name="Revolute_14" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-1.4835 1.4835" class="hinge" />
+            <inertial pos="0.00016508353145887455 0.016047174957479718 0.008351910683837843" mass="0.07688407426613611" fullinertia="6.613190353371299e-06 6.02875016041116e-06 9.351801799760804e-06 -2.596728823741483e-07 2.2285646210593866e-08 -1.0332448062348547e-06" />
+            <geom name="RightShoulderJoint_1_geom" type="mesh" mesh="RightShoulderJoint_1_mesh" pos="-0.08525973441301847 -0.005032356628241788 -0.03116189991767169" quat="0.707106781187 0 0.707106781187 0" class="visual" />
+            <body name="RightUpperUpperArm_1" pos="-0.004838807071654303 -4.2360983483230887e-10 0.010161488740221747" quat="-0.5 -0.5 -0.5 0.5">
+              <joint name="Revolute_13" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-1.5708 1.5708" class="hinge" />
+              <inertial pos="-0.02139104876569689 0.001445492418299666 0.014919827782161077" mass="0.07890119839999934" fullinertia="7.760203335809673e-06 1.0971455910223555e-05 5.908622646210918e-06 1.2797937881988142e-07 8.723941038181448e-07 -2.7679787780967092e-08" />
+              <geom name="RightUpperUpperArm_1_geom" type="mesh" mesh="RightUpperUpperArm_1_mesh" pos="0.041323388657990213 -0.08042092734140287 0.005032356204633511" quat="0.707106781187 -0.707106781187 0 0" class="visual" />
+              <body name="RightLowerUpperArm_1" pos="-0.04054129177202198 0.0005034799013181682 0.012108738117393611" quat="0.5 -0.5 -0.5 0.5">
+                <joint name="Revolute_12" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-2.4435 0.0873" class="hinge" />
+                <inertial pos="-0.0006670343268773804 0.003694913621726911 0.021392089673486284" mass="0.10314184908927893" fullinertia="1.4496197447867163e-05 1.3999874658555723e-05 7.576650085119854e-06 -2.542113271560838e-07 4.552155924607946e-07 6.60843571876476e-07" />
+                <geom name="RightLowerUpperArm_1_geom" type="mesh" mesh="RightLowerUpperArm_1_mesh" pos="-0.08092440724267749 0.007076381912740744 -0.08186468043001219" quat="0.707106781187 0 0.707106781187 0" class="visual" />
+                <body name="RightLowerArm_1" pos="-0.01935520495597427 2.913122038775457e-09 0.029032834942224677" quat="0 -0.707106781187 0 0.707106781187">
+                  <joint name="Revolute_11" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-1.0472 1.0472" class="hinge" />
+                  <inertial pos="-0.03871042548428505 9.109862294575855e-10 -0.000554550286840153" mass="0.02895379976012801" fullinertia="3.7092922820334546e-07 1.6568868307250064e-05 1.686435913529555e-05 0.0 0.0 3.618718967920482e-23" />
+                  <geom name="RightLowerArm_1_geom" type="mesh" mesh="RightLowerArm_1_mesh" pos="0.1108975153721401 -0.007076378999616085 0.06156920228670322" quat="0 1 0 0" class="visual" />
+                  <geom name="RightLowerArm_1_col" class="collision" type="capsule" fromto="0.00237786 7.11445e-10 -0.000442248 -0.0797987 7.09975e-10 -0.000442248" size="0.00342678" />
+                </body>
+                <geom name="RightLowerUpperArm_1_col" class="collision" type="capsule" fromto="-0.000196828 0.00379706 0.00350967 -0.014397 0.000235795 0.0285484" size="0.00663919" />
+              </body>
+              <geom name="RightUpperUpperArm_1_col" class="collision" type="capsule" fromto="-0.00150382 -7.15648e-05 0.00102441 -0.0349206 0.000456201 0.0124006" size="0.00595256" />
+            </body>
+            <geom name="RightShoulderJoint_1_col" class="collision" type="capsule" fromto="-0.00291746 0.00584072 0.00814644 0.00570838 0.0228867 0.0063933" size="0.0101363" />
+          </body>
+          <body name="LeftShoulderJoint_1" pos="-0.010355041270689917 0.03116189991767169 0.06183992124798453" quat="-0.5 0.5 0.5 0.5">
+            <joint name="Revolute_18" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-1.4835 1.4835" class="hinge" />
+            <inertial pos="0.00016508370421386285 -0.016047175474747887 0.008351910614749396" mass="0.07688407166087448" fullinertia="6.613189725302255e-06 6.028750065227576e-06 9.351801113535805e-06 2.596726805192474e-07 2.228561843936345e-08 1.0332448820557567e-06" />
+            <geom name="LeftShoulderJoint_1_geom" type="mesh" mesh="LeftShoulderJoint_1_mesh" pos="-0.08525973441301847 0.005032356628241788 -0.03116189991767169" quat="0 0.707106781187 0 0.707106781187" class="visual" />
+            <body name="LeftUpperUpperArm_1" pos="-0.004838804450232116 4.2360983483230887e-10 0.010161490087248065" quat="-0.5 0.5 0.5 0.5">
+              <joint name="Revolute_17" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-1.5708 1.5708" class="hinge" />
+              <inertial pos="0.02139104681323939 0.0014454898274490445 0.014919827869162778" mass="0.07890119579845382" fullinertia="7.760203299809177e-06 1.0971455003802158e-05 5.908621757225273e-06 -1.2797942697022875e-07 -8.723942363689043e-07 -2.76797779360491e-08" />
+              <geom name="LeftUpperUpperArm_1_geom" type="mesh" mesh="LeftUpperUpperArm_1_mesh" pos="-0.041323390004919754 -0.08042092996277667 0.005032356204633511" quat="0.707106781187 -0.707106781187 0 0" class="visual" />
+              <body name="LeftLowerUpperArm_1" pos="0.040541290424995664 0.0005034859650521284 0.012108732420669401" quat="0.5 0.5 0.5 0.5">
+                <joint name="Revolute_16" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-0.0873 2.4435" class="hinge" />
+                <inertial pos="-0.0006670425617218253 -0.0036949080221755685 0.021392089471708148" mass="0.10314184649163079" fullinertia="1.4496197227076559e-05 1.3999873648487526e-05 7.576649204631379e-06 2.5421115226378157e-07 4.5521522217942016e-07 -6.60843491389346e-07" />
+                <geom name="LeftLowerUpperArm_1_geom" type="mesh" mesh="LeftLowerUpperArm_1_mesh" pos="-0.08092441592784719 -0.007076376216035891 -0.08186468043001219" quat="0 0.707106781187 0 0.707106781187" class="visual" />
+                <body name="LeftLowerArm_1" pos="-0.01935521364114396 7.157501035722262e-09 0.02903282420095029" quat="0.707106781187 0 -0.707106781187 0">
+                  <joint name="Revolute_15" type="hinge" pos="0.0 0.0 0.0" axis="-0 -0 -1" range="-1.0472 1.0472" class="hinge" />
+                  <inertial pos="0.03871043622565622 -3.4629314394364476e-09 -0.000554550286840153" mass="0.02895379976012801" fullinertia="3.7092922820334546e-07 1.6568868307250064e-05 1.686435913529555e-05 0.0 0.0 3.618718967920482e-23" />
+                  <geom name="LeftLowerArm_1_geom" type="mesh" mesh="LeftLowerArm_1_mesh" pos="-0.11089750463096248 -0.007076383373537028 0.06156920228670322" quat="0 1 0 0" class="visual" />
+                  <geom name="LeftLowerArm_1_col" class="collision" type="capsule" fromto="0.0797987 -3.66395e-09 -0.000442248 -0.00237785 -3.66248e-09 -0.000442248" size="0.00342678" />
+                </body>
+                <geom name="LeftLowerUpperArm_1_col" class="collision" type="capsule" fromto="-0.000199372 -0.00379672 0.00350989 -0.0143876 -0.000235114 0.0285591" size="0.00664056" />
+              </body>
+              <geom name="LeftUpperUpperArm_1_col" class="collision" type="capsule" fromto="0.0349192 0.000456256 0.0124084 0.00150356 -7.15755e-05 0.00102001" size="0.00595147" />
+            </body>
+            <geom name="LeftShoulderJoint_1_col" class="collision" type="capsule" fromto="-0.00291607 -0.00584631 0.00814118 0.00569363 -0.0228778 0.00641309" size="0.0101508" />
+          </body>
+          <geom name="Torso_1_col" class="collision" type="box" pos="-0.00894692 8.73938e-11 0.0545074" quat="0.707107 -0 -0 0.707107" size="0.0311619 0.0244412 0.049043" />
+        </body>
+        <geom name="base_link_1_col" class="collision" type="box" pos="-9.4617e-11 1.93527e-10 0.00227424" quat="1 0 0 0" size="0.0311619 0.015581 0.0288877" />
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <position name="Revolute_5" joint="Revolute_5" inheritrange="1" />
+    <position name="Revolute_4" joint="Revolute_4" inheritrange="1" />
+    <position name="Revolute_3" joint="Revolute_3" inheritrange="1" />
+    <position name="Revolute_2" joint="Revolute_2" inheritrange="1" />
+    <position name="Revolute_1" joint="Revolute_1" inheritrange="1" />
+    <position name="Revolute_10" joint="Revolute_10" inheritrange="1" />
+    <position name="Revolute_9" joint="Revolute_9" inheritrange="1" />
+    <position name="Revolute_8" joint="Revolute_8" inheritrange="1" />
+    <position name="Revolute_7" joint="Revolute_7" inheritrange="1" />
+    <position name="Revolute_6" joint="Revolute_6" inheritrange="1" />
+    <position name="Revolute_19" joint="Revolute_19" inheritrange="1" />
+    <position name="Revolute_14" joint="Revolute_14" inheritrange="1" />
+    <position name="Revolute_13" joint="Revolute_13" inheritrange="1" />
+    <position name="Revolute_12" joint="Revolute_12" inheritrange="1" />
+    <position name="Revolute_11" joint="Revolute_11" inheritrange="1" />
+    <position name="Revolute_18" joint="Revolute_18" inheritrange="1" />
+    <position name="Revolute_17" joint="Revolute_17" inheritrange="1" />
+    <position name="Revolute_16" joint="Revolute_16" inheritrange="1" />
+    <position name="Revolute_15" joint="Revolute_15" inheritrange="1" />
+  </actuator>
+  <keyframe>
+    <key name="neutral" qpos="0 0 0.21323 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0" ctrl="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0" />
+  </keyframe>
+  <contact>
+    <exclude body1="spawn" body2="base_link_1" />
+    <exclude body1="spawn" body2="RightHipJoint_1" />
+    <exclude body1="spawn" body2="LeftHipJoint_1" />
+    <exclude body1="spawn" body2="Torso_1" />
+    <exclude body1="base_link_1" body2="RightHipJoint_1" />
+    <exclude body1="base_link_1" body2="RightUpperThigh_1" />
+    <exclude body1="base_link_1" body2="LeftHipJoint_1" />
+    <exclude body1="base_link_1" body2="LeftUpperThigh_1" />
+    <exclude body1="base_link_1" body2="Torso_1" />
+    <exclude body1="base_link_1" body2="RightShoulderJoint_1" />
+    <exclude body1="base_link_1" body2="LeftShoulderJoint_1" />
+    <exclude body1="RightHipJoint_1" body2="RightUpperThigh_1" />
+    <exclude body1="RightHipJoint_1" body2="RightLowerThigh_1" />
+    <exclude body1="RightHipJoint_1" body2="LeftHipJoint_1" />
+    <exclude body1="RightHipJoint_1" body2="Torso_1" />
+    <exclude body1="RightUpperThigh_1" body2="RightLowerThigh_1" />
+    <exclude body1="RightUpperThigh_1" body2="RightShin_1" />
+    <exclude body1="RightLowerThigh_1" body2="RightShin_1" />
+    <exclude body1="RightLowerThigh_1" body2="RightFoot_1" />
+    <exclude body1="RightShin_1" body2="RightFoot_1" />
+    <exclude body1="LeftHipJoint_1" body2="LeftUpperThigh_1" />
+    <exclude body1="LeftHipJoint_1" body2="LeftLowerThigh_1" />
+    <exclude body1="LeftHipJoint_1" body2="Torso_1" />
+    <exclude body1="LeftUpperThigh_1" body2="LeftLowerThigh_1" />
+    <exclude body1="LeftUpperThigh_1" body2="LeftShin_1" />
+    <exclude body1="LeftLowerThigh_1" body2="LeftShin_1" />
+    <exclude body1="LeftLowerThigh_1" body2="LeftFoot_1" />
+    <exclude body1="LeftShin_1" body2="LeftFoot_1" />
+    <exclude body1="Torso_1" body2="RightShoulderJoint_1" />
+    <exclude body1="Torso_1" body2="RightUpperUpperArm_1" />
+    <exclude body1="Torso_1" body2="LeftShoulderJoint_1" />
+    <exclude body1="Torso_1" body2="LeftUpperUpperArm_1" />
+    <exclude body1="RightShoulderJoint_1" body2="RightUpperUpperArm_1" />
+    <exclude body1="RightShoulderJoint_1" body2="RightLowerUpperArm_1" />
+    <exclude body1="RightShoulderJoint_1" body2="LeftShoulderJoint_1" />
+    <exclude body1="RightUpperUpperArm_1" body2="RightLowerUpperArm_1" />
+    <exclude body1="RightUpperUpperArm_1" body2="RightLowerArm_1" />
+    <exclude body1="RightLowerUpperArm_1" body2="RightLowerArm_1" />
+    <exclude body1="LeftShoulderJoint_1" body2="LeftUpperUpperArm_1" />
+    <exclude body1="LeftShoulderJoint_1" body2="LeftLowerUpperArm_1" />
+    <exclude body1="LeftUpperUpperArm_1" body2="LeftLowerUpperArm_1" />
+    <exclude body1="LeftUpperUpperArm_1" body2="LeftLowerArm_1" />
+    <exclude body1="LeftLowerUpperArm_1" body2="LeftLowerArm_1" />
+  </contact>
+</mujoco>

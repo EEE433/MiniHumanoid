@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f3ef">
+  <meta name="description" content="MiniHumanoid — a small, open humanoid robot learning to move.">
+  <title>MiniHumanoid — Learning to move</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+  <script type="importmap">
+    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}
+  </script>
+  <script type="module" src="hero-model.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="#top" aria-label="MiniHumanoid home"><span class="mark" aria-hidden="true"></span> MINI<span>HUMANOID</span></a>
+    <nav class="top-actions" aria-label="Project links">
+      <a class="top-link" href="model.html">VIEW 3D MODEL <span aria-hidden="true">↗</span></a>
+      <a class="github-link" href="https://github.com/EEE433/MiniHumanoid" target="_blank" rel="noopener noreferrer" aria-label="Open MiniHumanoid on GitHub">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .4a7.6 7.6 0 0 0-2.4 14.8c.38.07.52-.16.52-.37v-1.4c-2.12.46-2.57-.9-2.57-.9-.35-.88-.85-1.11-.85-1.11-.7-.48.05-.47.05-.47.77.05 1.17.79 1.17.79.69 1.18 1.8.84 2.24.64.07-.5.27-.84.49-1.03-1.69-.19-3.46-.85-3.46-3.77 0-.83.3-1.5.79-2.03-.08-.2-.34-.97.08-2.02 0 0 .65-.2 2.09.78a7.25 7.25 0 0 1 3.8 0c1.45-.98 2.09-.78 2.09-.78.42 1.05.16 1.82.08 2.02.5.53.79 1.2.79 2.03 0 2.93-1.78 3.58-3.47 3.77.27.24.52.7.52 1.41v2.09c0 .2.14.44.53.36A7.6 7.6 0 0 0 8 .4Z"/></svg>
+        SOURCE
+      </a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> A SMALL ROBOT, LEARNING</p>
+        <h1 id="hero-title">Learning<br>to <em>move.</em></h1>
+        <p class="intro">A 13-inch humanoid built from printed parts, hobby servos, and a little reinforcement learning.</p>
+        <a class="text-link" href="model.html">EXPLORE THE 3D MODEL <span aria-hidden="true">↗</span></a>
+      </div>
+
+      <div class="robot-panel" id="robot-panel">
+        <div class="panel-top"><span>FIG. 01 / STLv2</span><span class="panel-status"><i></i><span id="motion-status">LOADING MODEL</span></span></div>
+        <div class="hero-viewer" id="hero-viewer">
+          <canvas id="hero-model" aria-label="Interactive 3D model of the MiniHumanoid robot"></canvas>
+          <div class="hero-label hero-label--head" data-anchor="head"><i></i><span>01 / SENSOR HEAD</span></div>
+          <div class="hero-label hero-label--core" data-anchor="core"><i></i><span>02 / CORE BODY</span></div>
+          <div class="hero-label hero-label--legs" data-anchor="legs"><i></i><span>03 / 19 JOINTS</span></div>
+          <a class="hero-model-link" href="model.html">EXPLORE MODEL ↗</a>
+          <div class="hero-model-error" id="hero-model-error" hidden>3D model unavailable</div>
+        </div>
+        <div class="panel-bottom"><span>19 DEGREES OF FREEDOM</span><span>DRAG TO ORBIT · SCROLL TO ZOOM</span></div>
+      </div>
+      <div class="hero-index" aria-hidden="true">01 — 03</div>
+    </section>
+
+    <section class="build section" id="build" aria-labelledby="build-title">
+      <div class="section-heading"><p class="eyebrow">01 / THE BUILD</p><h2 id="build-title">Small by design.<br><span>Open by nature.</span></h2></div>
+      <div class="build-copy">
+        <p>MiniHumanoid is an experimental platform for learning how a robot stands, steps, and finds its balance. Its body is designed in CAD, brought to life with hobby servos, and tested in simulation before the real world.</p>
+        <div class="specs">
+          <div><span>HEIGHT</span><strong>13<span> in</span></strong></div>
+          <div><span>ACTUATORS</span><strong>19</strong></div>
+          <div><span>CONTROL</span><strong>ESP32</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="model-callout section" aria-labelledby="model-callout-title">
+      <div><p class="eyebrow">MODEL / 20 STL PARTS</p><h2 id="model-callout-title">Every part,<br><span>in its place.</span></h2></div>
+      <div class="model-callout-copy"><p>Explore the assembled STLv2 robot in an interactive 3D view. Orbit the model, zoom in, and inspect the neutral pose.</p><a class="text-link" href="model.html">OPEN MODEL VIEW <span aria-hidden="true">↗</span></a></div>
+    </section>
+
+    <section class="motion section" aria-labelledby="motion-title">
+      <div><p class="eyebrow">02 / IN THE LOOP</p><h2 id="motion-title">From simulation<br>to <em>motion.</em></h2></div>
+      <div class="motion-action"><p>Reinforcement learning explores movement in MuJoCo. Promising motion is distilled into a compact sequence for the robot.</p><button id="motion-button" type="button" aria-pressed="false"><span class="button-icon" aria-hidden="true">▶</span><span id="button-label">PREVIEW A MOTION</span></button><small>SIMULATED PREVIEW ONLY · NOT A LIVE ROBOT CONNECTION</small></div>
+    </section>
+  </main>
+
+  <footer><a class="wordmark" href="#top"><span class="mark" aria-hidden="true"></span> MINI<span>HUMANOID</span></a><span>MADE TO MOVE, MADE TO LEARN.</span><a href="#top" class="back-top">BACK TO TOP ↑</a></footer>
+</body>
+</html>

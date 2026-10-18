@@ -1,0 +1,25 @@
+<mujoco model="Humanoid">
+  <include file="STLv2_13in.xml"/>
+
+  <visual>
+    <map force="0.1" zfar="30"/>
+    <quality shadowsize="2048"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global offwidth="1280" offheight="720" elevation="-20" azimuth="120"/>
+  </visual>
+
+  <statistic center="0 0 0.7"/>
+
+  <asset>
+    <texture type="skybox" builtin="flat" rgb1=".5 .5 .5" rgb2="0 0 0" width="32" height="512"/>
+    <texture name="body" type="cube" builtin="flat" mark="cross" width="128" height="128" rgb1="0.75 0.75 0.75" rgb2="0.5 0.5 0.5" markrgb="1 1 1"/>
+    <material name="body" texture="body" texuniform="true" rgba="0.5 0.5 .5 1"/>
+    <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1=".5 .5 .5" rgb2=".6 .6 .6"/>
+    <material name="grid" texture="grid" texrepeat="3 3" texuniform="true" reflectance=".2"/>
+  </asset>
+
+  <worldbody>
+    <geom name="floor" size="0 0 .05" type="plane" material="grid" condim="3"/>
+    <light name="top" pos="0 0 10" mode="trackcom" diffuse="10 10 10" specular="10 10 10"/>
+  </worldbody>
+</mujoco>

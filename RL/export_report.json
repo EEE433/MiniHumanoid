@@ -1,0 +1,8 @@
+{
+  "robot": "STLv2",
+  "format": "MuJoCo XML",
+  "scale_factor": 1.0,
+  "links": 20,
+  "joints": 19,
+  "warnings": []
+}

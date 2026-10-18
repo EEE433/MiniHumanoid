@@ -1,0 +1,31 @@
+.model-main { max-width: 1320px; margin: 0 auto; padding: 54px 6vw 34px; }
+.model-heading { display: flex; align-items: end; justify-content: space-between; gap: 32px; padding-bottom: 30px; }
+.model-heading .eyebrow { margin-top: 0; }
+.model-heading h1 { margin: 18px 0 0; font: 700 clamp(38px, 6vw, 72px)/1.05 var(--mono); letter-spacing: -.06em; }
+.model-heading > p { margin: 0 0 5px; color: #444; font: 22px var(--sans); line-height: 1.05; }
+.viewer-frame { position: relative; height: min(68vh, 700px); min-height: 460px; overflow: hidden; background: #e5e5e5; }
+#robot-viewer { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; outline: none; }
+#robot-viewer:active { cursor: grabbing; }
+.viewer-meta { position: absolute; left: 20px; right: 20px; bottom: 16px; display: flex; justify-content: space-between; pointer-events: none; color: #555; font: 13px var(--mono); letter-spacing: 0; }
+.viewer-meta > span:first-child { display: inline-flex; align-items: center; gap: 8px; }
+.viewer-meta i { width: 6px; height: 6px; border-radius: 0; background: #777; }
+.viewer-meta i.ready { background: #111; }
+.viewer-error { position: absolute; inset: 25% 10% auto; padding: 18px; background: var(--paper); color: var(--ink); border: 1px solid var(--line); font: 20px var(--sans); line-height: 1.2; }
+.viewer-error code { font-family: var(--mono); font-size: 11px; }
+.reset-view { position: absolute; top: 18px; right: 18px; margin: 0; background: rgba(245,245,245,.92); color: var(--ink); border-color: #aaa; }
+.reset-view:hover { background: #ccc; border-color: #999; }
+.model-header-actions { display: flex; align-items: center; gap: 24px; }
+.model-foot { display: flex; justify-content: space-between; padding: 14px 0 0; color: var(--muted); font: 13px var(--mono); letter-spacing: 0; }
+@media (max-width: 700px) {
+  .model-main { padding: 38px 20px 24px; }
+  .model-heading { display: block; padding-bottom: 24px; }
+  .model-header-actions { gap: 10px; }
+  .model-header-actions .top-link { font-size: 11px; }
+  .model-header-actions .github-link { font-size: 0; padding: 7px; }
+  .model-header-actions .github-link svg { width: 16px; height: 16px; }
+  .model-heading > p { margin-top: 16px; }
+  .viewer-frame { height: 64vh; min-height: 380px; }
+  .viewer-meta { left: 12px; right: 12px; bottom: 12px; font-size: 8px; }
+  .reset-view { top: 12px; right: 12px; }
+  .model-foot { font-size: 10px; }
+}
