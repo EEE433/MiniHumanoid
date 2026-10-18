@@ -1,6 +1,20 @@
 """Joystick / keyboard -> velocity command, plus a headless self-test. No RL libraries needed here."""
-import os
 import numpy as np
+
+
+def resolve_device(requested="cuda"):
+    """Prefer CUDA for PPO, but keep scripts usable on machines without an NVIDIA GPU."""
+    if requested == "auto":
+        requested = "cuda"
+    if requested.startswith("cuda"):
+        import torch
+        if not torch.cuda.is_available():
+            print("CUDA requested but unavailable; using CPU.")
+            return "cpu"
+        if ":" in requested and int(requested.split(":", 1)[1]) >= torch.cuda.device_count():
+            print(f"{requested} is unavailable; using CPU.")
+            return "cpu"
+    return requested
 
 
 def _dead(x, dz):
@@ -21,7 +35,8 @@ def stick_to_command(lx, ly, rx, vx_range, vy_range, wz_range, deadzone=0.12):
 
 class GamepadReader:
     """pygame 2 default axes (Xbox / PlayStation, wired or Bluetooth): LX=0, LY=1, RX=2. Override if yours differ."""
-    def __init__(self, axis_lx=0, axis_ly=1, axis_rx=2, deadzone=0.12, index=0, btn_reset=0, btn_stop=1):
+    def __init__(self, axis_lx=0, axis_ly=1, axis_rx=2, deadzone=0.12, index=0,
+                 btn_reset=0, btn_stop=1, btn_wave=2, btn_stand=3):
         import pygame
         self.pg = pygame
         pygame.init(); pygame.joystick.init()
@@ -31,23 +46,38 @@ class GamepadReader:
         self.name = self.joy.get_name()
         self.ax = (axis_lx, axis_ly, axis_rx); self.dz = deadzone
         self.btn_reset, self.btn_stop = btn_reset, btn_stop
-        self._prev_reset = False
+        self.btn_wave, self.btn_stand = btn_wave, btn_stand
+        self._buttons = {"reset": False, "wave": False, "stand": False}
+        self._previous = {name: False for name in self._buttons}
+        self._wave = False; self._stand = False
 
     def command(self, vx_range, vy_range, wz_range):
         self.pg.event.pump()
+        for name, button in (("reset", self.btn_reset), ("wave", self.btn_wave), ("stand", self.btn_stand)):
+            now = bool(self.joy.get_button(button))
+            self._buttons[name] = now and not self._previous[name]
+            self._previous[name] = now
+        if self._buttons["wave"]: self._wave = not self._wave
+        if self._buttons["stand"]: self._stand = not self._stand
+
         lx, ly, rx = (self.joy.get_axis(i) for i in self.ax)
         cmd = stick_to_command(lx, ly, rx, vx_range, vy_range, wz_range, self.dz)
-        if self.joy.get_button(self.btn_stop): cmd[:] = 0.0
+        if self._wave or self._stand or self.joy.get_button(self.btn_stop): cmd[:] = 0.0
         return cmd
 
     def reset_pressed(self):                                 # edge-triggered: A button
-        now = bool(self.joy.get_button(self.btn_reset))
-        edge = now and not self._prev_reset; self._prev_reset = now
-        return edge
+        return self._buttons["reset"]
+
+    def wave_active(self):
+        return self._wave
+
+    def standing(self):
+        return self._stand
 
 
 def print_axes(index=0):
     """Run this to find your stick axis numbers: move each stick and watch which value changes."""
+
     import time, pygame
     pygame.init(); pygame.joystick.init()
     if pygame.joystick.get_count() <= index: raise SystemExit("No gamepad found.")
@@ -76,28 +106,32 @@ class KeyboardPad:
     """Hold-to-move keyboard control in a small pygame window (click it so it has focus; no OS permissions needed).
          W / S  (or Up / Down)      forward / back        A / D   strafe left / right
          Q / E  (or Left / Right)   turn left / right     Shift   half speed
-         Space  stop                R   reset robot"""
+         T   toggle standing        G   toggle wave        Space   stop / R reset"""
     LEGEND = ["W / S  or  Up / Down     forward / back", "A / D                    strafe left / right",
               "Q / E  or  Left / Right   turn left / right", "Shift                   half speed",
+              "T                       toggle standing", "G                       toggle wave",
               "Space                   stop", "R                       reset robot"]
 
     def __init__(self, ramp_per_s=2.0):
         import pygame
         self.pg = pygame; pygame.init(); pygame.font.init()
-        self.screen = pygame.display.set_mode((460, 300)); pygame.display.set_caption("Robot keyboard control - keep this window focused")
+        self.screen = pygame.display.set_mode((460, 340)); pygame.display.set_caption("Robot keyboard control - keep this window focused")
         self.font = pygame.font.Font(None, 24); self.small = pygame.font.Font(None, 21)
         self.cmd = np.zeros(3); self.ramp = ramp_per_s; self.quit = False
-        self._prev_r = False; self._reset = False; self._n = 0
+        self._prev_r = False; self._reset = False; self._standing = False; self._wave = False; self._n = 0
 
     def command(self, vx_range, vy_range, wz_range, dt):
         pg = self.pg
         for e in pg.event.get():
             if e.type == pg.QUIT: self.quit = True
+            elif e.type == pg.KEYDOWN and e.key == pg.K_t: self._standing = not self._standing
+            elif e.type == pg.KEYDOWN and e.key == pg.K_g: self._wave = not self._wave
         k = pg.key.get_pressed()
         shift = k[pg.K_LSHIFT] or k[pg.K_RSHIFT]
         target = keys_to_target(k[pg.K_w] or k[pg.K_UP], k[pg.K_s] or k[pg.K_DOWN], k[pg.K_a], k[pg.K_d],
                                 k[pg.K_q] or k[pg.K_LEFT], k[pg.K_e] or k[pg.K_RIGHT], shift,
                                 vx_range, vy_range, wz_range)
+        if self._standing or self._wave: target[:] = 0.0
         full = np.maximum(np.abs([vx_range[0], vy_range[0], wz_range[0]]), np.abs([vx_range[1], vy_range[1], wz_range[1]]))
         if k[pg.K_SPACE]: self.cmd[:] = 0.0; target[:] = 0.0
         self.cmd = slew(self.cmd, target, self.ramp * full * dt)       # reaches full speed in 1/ramp seconds
@@ -109,12 +143,18 @@ class KeyboardPad:
     def reset_pressed(self):
         return self._reset
 
+    def wave_active(self):
+        return self._wave
+
+    def standing(self):
+        return self._standing
+
     def _draw(self, full):
         pg, scr = self.pg, self.screen
         scr.fill((24, 26, 32))
         for i, t in enumerate(self.LEGEND): scr.blit(self.small.render(t, True, (190, 195, 205)), (16, 14 + 22 * i))
         for i, (name, v, f) in enumerate(zip(("forward", "left", "turn"), self.cmd, full)):
-            y = 170 + 36 * i
+            y = 205 + 36 * i
             scr.blit(self.font.render(f"{name:8s}{v:+.2f}", True, (235, 235, 240)), (16, y))
             pg.draw.rect(scr, (60, 64, 74), (170, y + 2, 270, 16))
             pg.draw.rect(scr, (90, 170, 255), (305, y + 2, int(135 * np.clip(v / f, -1, 1)), 16))   # bar grows right (+) or left (-)

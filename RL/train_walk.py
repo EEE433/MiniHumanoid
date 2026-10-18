@@ -10,6 +10,7 @@ from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv, VecNorm
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.callbacks import CheckpointCallback
 from walk_env import WalkEnv
+from controller import resolve_device
 
 
 def make_env(rank, push, cmd_scale, mass_scale):
@@ -29,8 +30,9 @@ if __name__ == "__main__":          # required on Windows (SubprocVecEnv uses sp
     p.add_argument("--mass-scale", type=float, default=1.0, help="multiply all link masses (what-if for a lighter build)")
     p.add_argument("--name", default="walk")
     p.add_argument("--resume", default=None, help="model .zip to continue from (also loads its vecnormalize.pkl)")
-    p.add_argument("--device", default="auto", help='"cuda" for your NVIDIA GPU, "cuda", or "auto" (cuda if available)')
+    p.add_argument("--device", default="cuda", help="PPO device (cuda when available; falls back to cpu)")
     a = p.parse_args()
+    a.device = resolve_device(a.device)
     import torch; torch.set_num_threads(1)
 
     out = os.path.join("runs", a.name); os.makedirs(out, exist_ok=True)

@@ -45,9 +45,9 @@ h1 em, .motion h2 em { font-family: var(--sans); font-weight: 400; font-style: n
 #hero-model:active { cursor: grabbing; }
 .hero-label { position: absolute; z-index: 1; display: inline-flex; align-items: center; gap: 8px; color: #303030; font: 11px var(--mono); letter-spacing: 0; white-space: nowrap; pointer-events: none; transform: translate(10px,-50%); transition: opacity .2s; }
 .hero-label i { width: 6px; height: 6px; display: inline-block; flex: 0 0 auto; border-radius: 50%; background: #111; box-shadow: 0 0 0 1px #f3f3f3; }
-.hero-label--head { transform: translate(10px,-110%); }
-.hero-label--core { transform: translate(-110%,-50%); }
-.hero-label--legs { transform: translate(10px,-10%); }
+.hero-label--brain { transform: translate(10px,-120%); }
+.hero-label--drivers { transform: translate(-110%,-50%); }
+.hero-label--joints { transform: translate(10px,-10%); }
 .hero-label.is-behind { opacity: .18; }
 .hero-model-link { position: absolute; right: 14px; bottom: 12px; z-index: 2; padding: 8px 10px; background: rgba(245,245,245,.9); color: var(--ink); font: 8px var(--mono); letter-spacing: .06em; }
 .hero-model-link:hover { background: #ccc; }

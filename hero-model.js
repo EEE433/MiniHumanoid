@@ -46,9 +46,9 @@ if (host && canvas) {
 
   let robot;
   const labelPoints = {
-    head: new THREE.Vector3(0, 0.145, 0),
-    core: new THREE.Vector3(0, 0.015, 0),
-    legs: new THREE.Vector3(0, -0.125, 0),
+    brain: new THREE.Vector3(0, 0.115, 0.015),
+    drivers: new THREE.Vector3(0, 0.115, -0.025),
+    joints: new THREE.Vector3(0, 0.015, 0.025),
   };
   const labels = [...host.querySelectorAll('.hero-label')];
 

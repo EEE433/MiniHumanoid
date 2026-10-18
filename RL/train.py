@@ -6,6 +6,7 @@ from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv, VecNorm
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.callbacks import CheckpointCallback
 from stand_env import StandEnv
+from controller import resolve_device
 
 
 def make_env(rank, push):
@@ -23,8 +24,9 @@ if __name__ == "__main__":          # required on Windows (SubprocVecEnv uses sp
     p.add_argument("--push", type=float, default=0.0, help="max random push force in N (0 = off)")
     p.add_argument("--name", default="stand")
     p.add_argument("--resume", default=None, help="path to a model .zip to continue training")
-    p.add_argument("--device", default="auto", help='"cuda" for your NVIDIA GPU, "cuda", or "auto" (cuda if available)')
+    p.add_argument("--device", default="cuda", help="PPO device (cuda when available; falls back to cpu)")
     a = p.parse_args()
+    a.device = resolve_device(a.device)
     import torch; torch.set_num_threads(1)   # small MLP: 1 thread is faster than fighting the env workers
 
     out = os.path.join("runs", a.name); os.makedirs(out, exist_ok=True)

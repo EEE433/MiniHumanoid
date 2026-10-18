@@ -4,10 +4,11 @@
   python drive.py --run runs/walk --keyboard      # force keyboard (small control window: hold W/A/S/D, Q/E ...)
   python drive.py --list-axes                     # find your gamepad stick axis numbers
   python drive.py --run runs/walk --selftest      # headless tracking test, no viewer
-Gamepad: left stick = move/strafe, right stick X = turn, A = reset, B (held) = stop."""
+Keyboard: WASD / arrows = move, Q/E = turn, T = standing toggle, G = wave toggle, R = reset.
+Xbox: left stick = move/strafe, right stick X = turn, A = reset, B = stop, X = wave, Y = standing."""
 import argparse, os, time
 import numpy as np
-from controller import GamepadReader, KeyboardPad, print_axes, run_selftest
+from controller import GamepadReader, KeyboardPad, print_axes, resolve_device, run_selftest
 
 
 def main():
@@ -17,7 +18,7 @@ def main():
     p.add_argument("--keyboard", action="store_true")
     p.add_argument("--list-axes", action="store_true")
     p.add_argument("--selftest", action="store_true")
-    p.add_argument("--device", default="cpu", help="cpu is fastest for single-step playback; cuda also works")
+    p.add_argument("--device", default="cuda", help="PPO inference device (cuda when available; falls back to cpu)")
     p.add_argument("--push", type=float, default=0.0)
     p.add_argument("--mass-scale", type=float, default=1.0, help="must match what you trained with")
     p.add_argument("--axis-lx", type=int, default=0); p.add_argument("--axis-ly", type=int, default=1)
@@ -31,7 +32,9 @@ def main():
     env = WalkEnv(push_force=a.push, mass_scale=a.mass_scale)
     vn = VecNormalize.load(os.path.join(a.run, "vecnormalize.pkl"), DummyVecEnv([lambda: WalkEnv(mass_scale=a.mass_scale)]))
     vn.training = False; vn.norm_reward = False
-    model = PPO.load(os.path.join(a.run, a.model), device=a.device)
+    device = resolve_device(a.device)
+    model = PPO.load(os.path.join(a.run, a.model), device=device)
+    print("policy inference on:", model.device)
     policy = lambda obs: model.predict(vn.normalize_obs(obs), deterministic=True)[0]
 
     if a.selftest:
@@ -56,6 +59,8 @@ def main():
             cmd = kb.command(env.vx_range, env.vy_range, env.wz_range, env.control_dt); reset = kb.reset_pressed()
             if kb.quit: break
         env.set_command(cmd)
+        env.set_gesture(standing=pad.standing() if pad else kb.standing(),
+                        wave=pad.wave_active() if pad else kb.wave_active())
         if reset: obs, _ = env.reset()
         obs, r, te, tr, info = env.step(policy(obs))
         if te or tr: obs, _ = env.reset()

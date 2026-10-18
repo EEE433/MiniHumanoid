@@ -1,13 +1,13 @@
 """Drive the trained walking policy with a game controller (or keyboard) in the MuJoCo viewer.
 
   python play_gamepad.py --run runs/walk                 # gamepad: left stick = move/strafe, right stick X = turn
-  python play_gamepad.py --run runs/walk --keyboard      # I/K fwd/back, J/L strafe, U/O turn, X stop
+  python play_gamepad.py --run runs/walk --keyboard      # WASD / arrows move, Q/E turn, T stand, G wave
   python play_gamepad.py --list-axes                     # find your stick axis numbers
   python play_gamepad.py --run runs/walk --selftest      # headless tracking test, no viewer
-A button = reset robot, B button = hold to stop."""
+Keyboard: R reset, Space stop. Xbox: A reset, B stop, X wave, Y standing toggle."""
 import argparse, os, time
 import numpy as np
-from controller import GamepadReader, KeyboardCommand, print_axes, run_selftest
+from controller import GamepadReader, KeyboardPad, print_axes, resolve_device, run_selftest
 
 
 def main():
@@ -17,6 +17,7 @@ def main():
     p.add_argument("--keyboard", action="store_true")
     p.add_argument("--list-axes", action="store_true")
     p.add_argument("--selftest", action="store_true")
+    p.add_argument("--device", default="cuda", help="PPO inference device (cuda when available; falls back to cpu)")
     p.add_argument("--push", type=float, default=0.0)
     p.add_argument("--mass-scale", type=float, default=1.0, help="must match what you trained with")
     p.add_argument("--axis-lx", type=int, default=0); p.add_argument("--axis-ly", type=int, default=1)
@@ -30,24 +31,39 @@ def main():
     env = WalkEnv(push_force=a.push, mass_scale=a.mass_scale)
     vn = VecNormalize.load(os.path.join(a.run, "vecnormalize.pkl"), DummyVecEnv([lambda: WalkEnv(mass_scale=a.mass_scale)]))
     vn.training = False; vn.norm_reward = False
-    model = PPO.load(os.path.join(a.run, a.model), device="cpu")
+    model = PPO.load(os.path.join(a.run, a.model), device=resolve_device(a.device))
+    print("policy inference on:", model.device)
     policy = lambda obs: model.predict(vn.normalize_obs(obs), deterministic=True)[0]
 
     if a.selftest:
         falls = run_selftest(env, policy); print("total falls:", falls); return
 
+    pad = None
+    if not a.keyboard:
+        try:
+            pad = GamepadReader(a.axis_lx, a.axis_ly, a.axis_rx, a.deadzone)
+            print("Gamepad:", pad.name)
+        except RuntimeError as e:
+            print(e, "-> using the keyboard")
+    if pad is None:
+        kb = KeyboardPad()
+        print("Keyboard: click the control window, then use WASD / arrows, Q/E, T (stand), G (wave), Space (stop), R (reset)")
     import mujoco.viewer
-    pad = None if a.keyboard else GamepadReader(a.axis_lx, a.axis_ly, a.axis_rx, a.deadzone)
-    kb = KeyboardCommand(env)
-    print("Gamepad:" if pad else "Keyboard mode", pad.name if pad else "")
-    viewer = mujoco.viewer.launch_passive(env.model, env.data, key_callback=kb.on_key if a.keyboard else None)
+    viewer = mujoco.viewer.launch_passive(env.model, env.data)
     obs, _ = env.reset(); next_t = time.perf_counter(); n = 0
     while viewer.is_running():
         if pad:
-            env.set_command(pad.command(env.vx_range, env.vy_range, env.wz_range))
-            if pad.reset_pressed(): obs, _ = env.reset()
+            cmd = pad.command(env.vx_range, env.vy_range, env.wz_range)
+            reset = pad.reset_pressed()
+            standing, wave = pad.standing(), pad.wave_active()
         else:
-            env.set_command(kb.cmd)
+            cmd = kb.command(env.vx_range, env.vy_range, env.wz_range, env.control_dt)
+            reset = kb.reset_pressed()
+            standing, wave = kb.standing(), kb.wave_active()
+            if kb.quit: break
+        env.set_command(cmd)
+        env.set_gesture(standing=standing, wave=wave)
+        if reset: obs, _ = env.reset()
         obs, r, te, tr, info = env.step(policy(obs))
         if te or tr: obs, _ = env.reset()
         viewer.sync(); n += 1

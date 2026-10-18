@@ -41,6 +41,7 @@ class WalkEnv(StandEnv):
         self.cmd_scale, self.gait_hz, self.step_height = cmd_scale, gait_hz, step_height
         self.cmd = np.zeros(3); self.manual_command = False; self._cmd_left = 0
         self._phase = 0.0; self._push = np.zeros(3)
+        self._standing = False; self._wave = False
 
         m = self.model
         self.floor_gid = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_GEOM, "floor")
@@ -70,6 +71,11 @@ class WalkEnv(StandEnv):
             else: r = "arm"
             roles.append(r)
         self.roles = roles
+        self.arm_actuators = {
+            role: next(i for i in range(self.nu) if self._body_name(i) == body)
+            for role, body in (("wave_shoulder", "RightUpperUpperArm_1"),
+                               ("wave_yaw", "RightShoulderJoint_1"))
+        }
         w = {"hip_roll": 1.0, "hip_yaw": 1.0, "waist": 1.0, "arm": 0.3, "shoulder_roll": 0.3}
         self.pose_w = np.array([w.get(r, 0.0) for r in roles])
 
@@ -121,6 +127,12 @@ class WalkEnv(StandEnv):
         self.cmd = np.clip(np.asarray(cmd, dtype=np.float64), self.cmd_lo, self.cmd_hi)
         self.manual_command = True
 
+    def set_gesture(self, standing=False, wave=False):
+        """Select a zero-velocity stand command or overlay a right-arm wave on the policy."""
+        self._standing, self._wave = bool(standing), bool(wave)
+        if self._standing or self._wave:
+            self.cmd[:] = 0.0
+
     # --------------------------------------------------------------- gym API
     def _obs(self):
         d = self.data
@@ -148,6 +160,7 @@ class WalkEnv(StandEnv):
         self._prev_action[:] = 0; self._steps = 0; self._push_left = 0
         self._phase = float(self.np_random.uniform(0, 1))
         if not self.manual_command: self._sample_command()
+        if self._standing or self._wave: self.cmd[:] = 0.0
         return self._obs(), {}
 
     def _contacts(self):
@@ -166,6 +179,12 @@ class WalkEnv(StandEnv):
         action = np.clip(np.asarray(action, dtype=np.float64), -1, 1)
         d, m = self.data, self.model
         d.ctrl[:] = np.clip(self.home_q + self.action_scale * action, self.ctrl_lo, self.ctrl_hi)
+        if self._wave:
+            shoulder = self.arm_actuators["wave_shoulder"]
+            yaw = self.arm_actuators["wave_yaw"]
+            phase = 2 * np.pi * 1.5 * self._steps * self.control_dt
+            d.ctrl[shoulder] = np.clip(self.home_q[shoulder] + 0.8, self.ctrl_lo[shoulder], self.ctrl_hi[shoulder])
+            d.ctrl[yaw] = np.clip(0.55 * np.sin(phase), self.ctrl_lo[yaw], self.ctrl_hi[yaw])
 
         if self.push_force > 0:                                  # random shoves for robustness
             if self._push_left == 0 and self.np_random.random() < 0.01:
@@ -182,7 +201,7 @@ class WalkEnv(StandEnv):
         if not self.manual_command:
             self._cmd_left -= 1
             if self._cmd_left <= 0: self._sample_command()
-        moving = self._is_moving()
+        moving = self._is_moving() and not self._standing
         if moving: self._phase = (self._phase + self.gait_hz * self.control_dt) % 1.0
 
         # ---- state in the heading frame
